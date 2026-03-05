@@ -1,9 +1,7 @@
-# BMLD-Inf2-AppV0
+st.title("Kjeldahl Stickstoff- & Protein-Rechner")
 
-Das leere Gerüst um eine App aufzubauen.
-
-## Autor
-
-Samuel Wehrli (wehs@zhaw.ch)
+#Diese App wurde von folgenden Personen entwickelt:
+- Lia Bütikofer (buetilia@students.zhaw.ch)
+- Vanessa Cakoncev (cakonvan@students.zhaw.ch)
 
 
