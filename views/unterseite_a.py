@@ -10,9 +10,9 @@ st.write("""
     Diese App bietet eine schnelle, sichere und reproduzierbare Lösung.
     """)
 
-def calc_kjeldahl(v_p, v_b, c, f, m):
+def calc_kjeldahl(v_p, c, f, m):
     if m <= 0: return 0
-    return ((v_p - v_b) * c * f * 14.007 * 0.1) / m
+    return (v_p * c * f * 14.007 * 0.1) / m
 
 with st.sidebar:
     st.header("⚙️ Einstellungen")
@@ -47,12 +47,11 @@ with st.sidebar:
 
 with st.form("inputs"):
     m_e = st.number_input("Einwaage (g)", format="%.4f")
-    v_p = st.number_input("Verbrauch Probe (ml)", format="%.4f")
-    v_b = st.number_input("Verbrauch Blind (ml)", format="%.4f")
+    v_p = st.number_input("Verbrauch HCl (ml)", format="%.4f")
     submit = st.form_submit_button("Berechnen")
 
 if submit:
-    result_n = calc_kjeldahl(v_p, v_b, c_hcl, f_titer, m_e)
+    result_n = calc_kjeldahl(v_p, c_hcl, f_titer, m_e)
     result_p = result_n * p_factor
     st.success("Berechnung abgeschlossen")
     st.metric("Rohprotein", f"{result_p:.2f} %")
@@ -63,15 +62,6 @@ with tab_rechner:
     st.info("Gib deine Labordaten in der Sidebar und im Formular ein.")
 
 with tab_theorie:
-    st.subheader(" Zweck der Applikation")
-    st.write("""
-    Dieser Rechner wurde entwickelt, um die manuelle Auswertung der **Kjeldahl-Stickstoffbestimmung** zu 
-    ersetzen. Im Laboralltag fallen viele Messwerte an, die fehleranfällig berechnet werden müssen. 
-    Diese App bietet eine schnelle, sichere und reproduzierbare Lösung.
-    """)
-
-    st.divider()
-
     st.subheader(" Hintergrund")
     st.markdown("""
     Die Bestimmung nach **Johan Kjeldahl (1883)** ist das weltweit anerkannte Referenzverfahren zur Ermittlung des Stickstoff- und Proteingehalts.
