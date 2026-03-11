@@ -1,4 +1,15 @@
+import pandas as pd
 import streamlit as st
+import sys
+import os
+
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+
+from functions.logic import calculate_kjeldahl_results
+
+if 'data_df' not in st.session_state:
+    st.session_state['data_df'] = pd.DataFrame(columns=[
+        "Zeitstempel", "v_p", "Stickstoff (%)", "Protein (%)", "Faktor"])
 
 st.title("Kjeldahl Stickstoff- & Protein-Rechner")
 
@@ -51,10 +62,21 @@ with st.form("inputs"):
     submit = st.form_submit_button("Berechnen")
 
 if submit:
-    result_n = calc_kjeldahl(v_p, c_hcl, f_titer, m_e)
-    result_p = result_n * p_factor
-    st.success("Berechnung abgeschlossen")
-    st.metric("Rohprotein", f"{result_p:.2f} %")
+    try:
+        result = calculate_kjeldahl_results(v_p, c_hcl, f_titer, m_e, p_factor)
+        st.session_state['data_df'] = pd.concat([st.session_state['data_df'], pd.DataFrame([result])], ignore_index=True)
+        st.success("Berechnung erfolgreich zur Tabelle hinzugefügt!")
+
+        col1, col2 = st.columns(2)
+        col1.metric("Stickstoffgehalt", f"{result['Stickstoff (%)']} %")
+        col2.metric("Rohproteingehalt", f"{result['Protein (%)']} %")
+
+    except ValueError as e:
+        st.error(f"Fehler bei der Berechnung: {e}")
+
+st.subheader("Verlauf der Analysen")
+st.dataframe(st.session_state['data_df'])
+
 
 tab_rechner, tab_theorie = st.tabs([" Kjeldahl-Rechner", " Anleitung & Dokumentation"])
 
@@ -138,3 +160,4 @@ with tab_theorie:
 st.divider()
 
 st.caption("Erstellt im Rahmen des Moduls Informatik 2 | ZHAW | 2026")
+

@@ -1,0 +1,47 @@
+import streamlit as st
+import pandas as pd
+from datetime import datetime
+import pytz
+import sys
+import os
+
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+
+from functions.logic import calculate_kjeldahl_results
+
+def calculate_kjeldahl_results(v_p, v_b, c_hcl, f_titer, m_e, p_factor):
+    """
+    Berechnet den Stickstoff- und Proteingehalt und gibt ein Dictionary mit 
+    allen Daten und einem Zeitstempel zurück.
+
+    Parameter:
+    v_p (float): Verbrauch HCl Probe (ml)
+    v_b (float): Verbrauch HCl Blindwert (ml)
+    c_hcl (float): Konzentration der HCl (mol/L)
+    f_titer (float): Titerfaktor der HCl
+    m_e (float): Einwaage der Probe (g)
+    p_factor (float): Proteinfaktor (z.B. 6.25)
+    """
+
+    if m_e <= 0:
+        raise ValueError("Die Einwaage muss grösser als 0 sein.")
+    
+    nitrogen_percent = ((v_p - v_b) * c_hcl * f_titer * 14.007 * 0.1) / m_e
+        
+    protein_percent = nitrogen_percent * p_factor
+
+    nitrogen_percent = max(0.0, nitrogen_percent)
+    protein_percent = max(0.0, protein_percent)
+
+    swiss_tz = pytz.timezone('Europe/Zurich')
+    timestamp = datetime.now(swiss_tz)
+
+    return {
+        "timestamp": timestamp.strftime("%d.%m.%Y %H:%M:%S"),
+        "v_p": v_p,
+        "v_b": v_b,
+        "nitrogen": round(nitrogen_percent, 3), # 3 Nachkommastellen für Stickstoff
+        "protein": round(protein_percent, 2),  # 2 Nachkommastellen für Protein
+        "p_factor": p_factor,
+        "status": "Erfolgreich"
+    }
