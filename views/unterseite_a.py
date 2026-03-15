@@ -9,7 +9,7 @@ from functions.logic import calculate_kjeldahl_results
 
 if 'data_df' not in st.session_state:
     st.session_state['data_df'] = pd.DataFrame(columns=[
-        "Zeitstempel", "v_p", "Stickstoff (%)", "Protein (%)", "Faktor"])
+        "Zeitstempel", "Proben Volumen", "Stickstoff (%)", "Protein (%)", "Faktor"])
 
 st.title("Kjeldahl Stickstoff- & Protein-Rechner")
 
@@ -21,67 +21,7 @@ st.write("""
     Diese App bietet eine schnelle, sichere und reproduzierbare Lösung.
     """)
 
-def calc_kjeldahl(v_p, c, f, m):
-    if m <= 0: return 0
-    return (v_p * c * f * 14.007 * 0.1) / m
-
-with st.sidebar:
-    st.header("⚙️ Einstellungen")
-    c_hcl = st.number_input("Konzentration HCl", value=0.1)
-
-    st.divider()
-
-    f_titer = st.number_input("Titer (f):", value=1.0000, format="%.4f")
-
-    st.divider()
-
-    sorte = st.selectbox(
-        "Proteinsorte wählen:",
-        ["Fleisch / Eier", "Getreide (Weizen)", "Milchprodukte", "Erdnüsse", "Andere"]
-    )
-    if sorte == "Fleisch / Eier":
-        wert = 6.25
-    elif sorte == "Getreide (Weizen)":
-        wert = 5.70
-    elif sorte == "Milchprodukte":
-        wert = 6.38
-    elif sorte == "Erdnüsse":
-        wert = 5.46
-    else:
-        wert = 1.00
-    p_factor = st.number_input(
-        "Zugehöriger Faktor:",
-        value=wert,
-        step=0.01,
-        format="%.2f",
-        help="Dieser Wert wird für die Berechnung des Rohproteins verwendet.")
-
-with st.form("inputs"):
-    m_e = st.number_input("Einwaage (g)", format="%.4f")
-    v_p = st.number_input("Verbrauch HCl (ml)", format="%.4f")
-    submit = st.form_submit_button("Berechnen")
-
-if submit:
-    try:
-        result = calculate_kjeldahl_results(v_p, c_hcl, f_titer, m_e, p_factor)
-        st.session_state['data_df'] = pd.concat([st.session_state['data_df'], pd.DataFrame([result])], ignore_index=True)
-        st.success("Berechnung erfolgreich zur Tabelle hinzugefügt!")
-
-        col1, col2 = st.columns(2)
-        col1.metric("Stickstoffgehalt", f"{result['Stickstoff (%)']} %")
-        col2.metric("Rohproteingehalt", f"{result['Protein (%)']} %")
-
-    except ValueError as e:
-        st.error(f"Fehler bei der Berechnung: {e}")
-
-st.subheader("Verlauf der Analysen")
-st.dataframe(st.session_state['data_df'])
-
-
 tab_rechner, tab_theorie = st.tabs([" Kjeldahl-Rechner", " Anleitung & Dokumentation"])
-
-with tab_rechner:
-    st.info("Gib deine Labordaten in der Sidebar und im Formular ein.")
 
 with tab_theorie:
     st.subheader(" Hintergrund")
@@ -126,7 +66,7 @@ with tab_theorie:
 
     with math_col1:
         st.write("**Berechnung des Stickstoffgehalts ($w_N$):**")
-        st.latex(r"w_N [\%] = \frac{(V_{Probe} - V_{Blind}) \cdot c_{HCl} \cdot f \cdot 14.007 \cdot 0.1}{m_{Einwaage}}")
+        st.latex(r"w_N [\%] = \frac{V_{Probe} \cdot c_{HCl} \cdot f \cdot 14.007 \cdot 0.1}{m_{Einwaage}}")
         st.write("**Umrechnung in Rohprotein:**")
         st.latex(r"Protein [\%] = w_N \cdot p\_factor")
 
@@ -157,7 +97,59 @@ with tab_theorie:
 
     st.caption("Datenquelle: In Anlehnung an C. Gerhardt GmbH & Co. KG")
 
-st.divider()
+with st.sidebar:
+    st.header("⚙️ Einstellungen")
+    c_hcl = st.number_input("Konzentration HCl", value=0.1)
 
-st.caption("Erstellt im Rahmen des Moduls Informatik 2 | ZHAW | 2026")
+    st.divider()
 
+    f_titer = st.number_input("Titer (f):", value=1.0000, format="%.4f")
+
+    st.divider()
+
+    sorte = st.selectbox(
+        "Proteinsorte wählen:",
+        ["Fleisch / Eier", "Getreide (Weizen)", "Milchprodukte", "Erdnüsse", "Andere"]
+    )
+    if sorte == "Fleisch / Eier":
+        wert = 6.25
+    elif sorte == "Getreide (Weizen)":
+        wert = 5.70
+    elif sorte == "Milchprodukte":
+        wert = 6.38
+    elif sorte == "Erdnüsse":
+        wert = 5.46
+    else:
+        wert = 1.00
+    p_factor = st.number_input(
+        "Zugehöriger Faktor:",
+        value=wert,
+        step=0.01,
+        format="%.2f",
+        help="Dieser Wert wird für die Berechnung des Rohproteins verwendet.")
+
+with tab_rechner:
+    st.subheader("Messdaten der Titration")
+
+    with st.form("inputs"):
+        m_e = st.number_input("Einwaage (g)", format="%.4f")
+        v_p = st.number_input("Verbrauch HCl (ml)", format="%.4f")
+        submit = st.form_submit_button("Berechnen")
+
+    if submit:
+        try:
+            result = calculate_kjeldahl_results(v_p, c_hcl, f_titer, m_e, p_factor)
+            new_row = pd.DataFrame([result])
+            new_row.index = [len(st.session_state['data_df']) + 1]
+            st.session_state['data_df'] = pd.concat([st.session_state['data_df'], new_row])
+            st.success(f"Probe {len(st.session_state['data_df'])} erfolgreich hinzugefügt!")
+
+            col1, col2 = st.columns(2)
+            col1.metric("Stickstoffgehalt", f"{result['Stickstoff (%)']} %")
+            col2.metric("Rohproteingehalt", f"{result['Protein (%)']} %")
+
+        except ValueError as e:
+            st.error(f"Fehler bei der Berechnung: {e}")
+
+    st.subheader("Verlauf der Analysen")
+    st.dataframe(st.session_state['data_df'])

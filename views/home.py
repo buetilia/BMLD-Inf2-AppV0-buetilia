@@ -1,4 +1,3 @@
-# Kjeldahl Stickstoff- & Protein-Rechner
 import streamlit as st
 st.title("Kjeldahl Stickstoff- & Protein-Rechner")
 st.caption("- Lia Bütikofer (buetilia@students.zhaw.ch)")
