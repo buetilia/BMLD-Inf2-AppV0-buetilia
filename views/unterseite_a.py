@@ -139,10 +139,19 @@ with tab_rechner:
     if submit:
         try:
             result = calculate_kjeldahl_results(v_p, c_hcl, f_titer, m_e, p_factor)
+            result['Zeitstempel'] = pd.Timestamp.now().strftime("%d.%m.%Y %H:%M")
             new_row = pd.DataFrame([result])
             new_row.index = [len(st.session_state['data_df']) + 1]
             st.session_state['data_df'] = pd.concat([st.session_state['data_df'], new_row])
             st.success(f"Probe {len(st.session_state['data_df'])} erfolgreich hinzugefügt!")
+
+            from app import dm
+
+            username = st.session_state['user_info']['username']
+
+            dm.save_user_data(username, st.session_state['data_df'])
+
+            st.success(f"Probe erfolgreich berechnet und auf Switch Drive gespeichert!")
 
             col1, col2 = st.columns(2)
             col1.metric("Stickstoffgehalt", f"{result['Stickstoff (%)']} %")
