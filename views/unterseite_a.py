@@ -140,8 +140,8 @@ with tab_rechner:
             result = {
                 "Zeitstempel": pd.Timestamp.now().strftime("%d.%m.%Y %H:%M"),
                 "Volumen Probe (ml)": v_p,
-                "Stickstoff (%)": raw_result['Stickstoff (%)'], # Namen aus deiner logic.py
-                "Protein (%)": raw_result['Protein (%)'],       # Namen aus deiner logic.py
+                "Stickstoff (%)": raw_result['Stickstoff (%)'], 
+                "Protein (%)": raw_result['Protein (%)'],       
                 "Faktor": p_factor
             }
             result['Zeitstempel'] = pd.Timestamp.now().strftime("%d.%m.%Y %H:%M")

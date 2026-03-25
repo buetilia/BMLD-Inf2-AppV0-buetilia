@@ -6,11 +6,11 @@ st.set_page_config(page_title="Kjeldahl-Rechner")
 from utils.data_manager import DataManager
 from utils.login_manager import LoginManager
 
-data_manager = DataManager(       # initialize data manager
+data_manager = DataManager(       
     fs_protocol='webdav',         
-    fs_root_folder="Kjeldahl-Rechner (2)"  # folder on switch drive where the data is stored
+    fs_root_folder="Kjeldahl-Rechner (2)"  
     ) 
-login_manager = LoginManager(data_manager) # handles user login and registration
+login_manager = LoginManager(data_manager) 
 login_manager.login_register() 
 
 if 'data_df' not in st.session_state:
