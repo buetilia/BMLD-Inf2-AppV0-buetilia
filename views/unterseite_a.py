@@ -7,11 +7,6 @@ from utils.data_manager import DataManager
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
 from functions.logic import calculate_kjeldahl_results
-
-#if 'data_df' not in st.session_state:
-#    st.session_state['data_df'] = pd.DataFrame(columns=[
-#        "Zeitstempel", "Volumen Probe (ml)", "Stickstoff (%)", "Protein (%)", "Faktor"  
-#    ])
        
 st.title("Kjeldahl Stickstoff- & Protein-Rechner")
 
@@ -169,4 +164,5 @@ with tab_rechner:
             st.error(f"Ein unerwarteter Fehler ist aufgetreten: {e}")
 
 st.subheader("Verlauf der Analysen")
-st.dataframe(st.session_state['data_df'])
+st.dataframe(st.session_state['data_df'].set_index(pd.Index(range(1, len(st.session_state['data_df']) + 1), name="Probe Nr.")))
+
