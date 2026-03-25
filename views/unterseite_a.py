@@ -1,5 +1,3 @@
-from unittest import result
-
 import pandas as pd
 import streamlit as st
 import sys
@@ -10,10 +8,10 @@ sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
 from functions.logic import calculate_kjeldahl_results
 
-if 'data_df' not in st.session_state:
-    st.session_state['data_df'] = pd.DataFrame(columns=[
-        "Zeitstempel", "Volumen Probe (ml)", "Stickstoff (%)", "Protein (%)", "Faktor"  
-    ])
+#if 'data_df' not in st.session_state:
+#    st.session_state['data_df'] = pd.DataFrame(columns=[
+#        "Zeitstempel", "Volumen Probe (ml)", "Stickstoff (%)", "Protein (%)", "Faktor"  
+#    ])
        
 st.title("Kjeldahl Stickstoff- & Protein-Rechner")
 
@@ -142,16 +140,6 @@ with tab_rechner:
 
     if submit:
         try:
-            if 'user_info' not in st.session_state or st.session_state['user_info'] is None:
-                st.error("Login-Daten nicht gefunden. Bitte auf der Home-Seite neu einloggen.")
-                st.stop()
-            
-            if 'dm' not in st.session_state:
-                from utils.data_manager import DataManager
-                st.session_state['dm'] = DataManager(fs_protocol='webdav', fs_root_folder="Kjeldahl-Rechner")
-
-            dm = st.session_state['dm']
-            username = st.session_state['user_info']['username']
 
             raw_result = calculate_kjeldahl_results(v_p, c_hcl, f_titer, m_e, p_factor)
             result = {
@@ -166,8 +154,8 @@ with tab_rechner:
             new_row = pd.DataFrame([result])
             new_row.index = [len(st.session_state['data_df']) + 1]
             st.session_state['data_df'] = pd.concat([st.session_state['data_df'], new_row])
-
-            dm.save_user_data(username, st.session_state['data_df'])
+            data_manager = DataManager()
+            data_manager.save_user_data(st.session_state["data_df"], "data.csv")
 
             st.success(f"Probe {len(st.session_state['data_df'])} erfolgreich gespeichert!")
             
