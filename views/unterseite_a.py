@@ -9,7 +9,7 @@ from functions.logic import calculate_kjeldahl_results
 
 if 'data_df' not in st.session_state:
     st.session_state['data_df'] = pd.DataFrame(columns=[
-        "Zeitstempel", "Proben Volumen", "Stickstoff (%)", "Protein (%)", "Faktor"])
+        "Zeitstempel", "Volumen Probe (ml)", "Stickstoff (%)", "Protein (%)", "Faktor"])
 
 st.title("Kjeldahl Stickstoff- & Protein-Rechner")
 
